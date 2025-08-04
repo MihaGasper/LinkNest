@@ -32,5 +32,6 @@ ${links.map((l: any, i: number) => `${i + 1}. ${l.url} (${l.tags}) - ${l.descrip
     const match = data.choices?.[0]?.message?.content.match(/\[.*\]/);
     if (match) grouped = JSON.parse(match[0]);
   } catch (e) {}
+  
   return NextResponse.json({ grouped });
 }
