@@ -29,9 +29,8 @@ ${links.map((l: any, i: number) => `${i + 1}. ${l.url} (${l.tags}) - ${l.descrip
   const data = await response.json();
   let grouped = [];
   try {
-    const match = data.choices?.[0]?.message?.content.match(/\[.*\]/);
+    const match = data.choices?.[0]?.message?.content.match(/\[[\s\S]*\]/);
     if (match) grouped = JSON.parse(match[0]);
   } catch (e) {}
-  
   return NextResponse.json({ grouped });
 }

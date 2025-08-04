@@ -101,17 +101,6 @@ export default function Dashboard() {
     return tagsString.split(/[,\s]+/).filter(tag => tag.length > 0)
   }
 
-  // Funkcija za AI grupiranje linkov
-  const groupLinks = async (links: Link[]) => {
-    const res = await fetch('/api/cluster-links', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ links }),
-    });
-    const data = await res.json();
-    // setGroups(data.groups || []);
-  };
-
   // AI grupiranje in shranjevanje group_title v bazo
   const groupLinksAndSave = async (links: Link[]) => {
     setGrouping(true);
