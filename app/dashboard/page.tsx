@@ -9,7 +9,10 @@ interface Link {
   url: string
   tags: string
   created_at: string
+  group_title?: string // Dodano za AI grupiranje
 }
+
+const groupColors = ['#6366f1', '#f59e42', '#10b981', '#f43f5e', '#eab308', '#3b82f6'];
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
@@ -18,6 +21,7 @@ export default function Dashboard() {
   const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [grouping, setGrouping] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -97,6 +101,54 @@ export default function Dashboard() {
     return tagsString.split(/[,\s]+/).filter(tag => tag.length > 0)
   }
 
+  // Funkcija za AI grupiranje linkov
+  const groupLinks = async (links: Link[]) => {
+    const res = await fetch('/api/cluster-links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ links }),
+    });
+    const data = await res.json();
+    // setGroups(data.groups || []);
+  };
+
+  // AI grupiranje in shranjevanje group_title v bazo
+  const groupLinksAndSave = async (links: Link[]) => {
+    setGrouping(true);
+    const res = await fetch('/api/cluster-links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ links }),
+    });
+    const data = await res.json();
+    if (data.grouped) {
+      for (const { url, group_title } of data.grouped) {
+        await supabase
+          .from('links')
+          .update({ group_title })
+          .eq('url', url);
+      }
+      // Počakaj, da se vsi updejti zaključijo, nato ponovno naloži linke
+      await fetchLinks(user.id);
+    }
+    setGrouping(false);
+  };
+
+  // Po nalaganju linkov pokliči AI grupiranje, če še ni group_title
+  useEffect(() => {
+    if (links.length > 0 && links.some(l => !l.group_title) && !grouping) {
+      groupLinksAndSave(links);
+    }
+  }, [links]);
+
+  // Razdeli linke po group_title
+  const grouped = links.reduce((acc, link) => {
+    if (!link.group_title) return acc;
+    if (!acc[link.group_title]) acc[link.group_title] = [];
+    acc[link.group_title].push(link);
+    return acc;
+  }, {} as Record<string, Link[]>);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -174,6 +226,32 @@ export default function Dashboard() {
             </button>
           </form>
         </div>
+
+        {/* AI grupirani linki po group_title */}
+        {Object.keys(grouped).length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-xl font-bold mb-4">AI skupine</h2>
+            {Object.entries(grouped).map(([groupTitle, groupLinks], idx) => (
+              <div
+                key={groupTitle}
+                className="mb-8 p-4 rounded-xl border-4"
+                style={{ borderColor: groupColors[idx % groupColors.length] }}
+              >
+                <h3 className="text-lg font-bold mb-4">{groupTitle}</h3>
+                <ul>
+                  {groupLinks.map(link => (
+                    <li key={link.id} className="mb-2">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline font-medium">{link.url}</a>
+                      {link.tags && (
+                        <span className="ml-2 text-xs text-gray-500">({link.tags})</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Saved Links */}
         <div className="bg-white rounded-lg shadow-sm p-6">
