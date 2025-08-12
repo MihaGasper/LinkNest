@@ -182,39 +182,39 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      <header className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white">
+        <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">LinkNest</h1>
-            <p className="text-sm text-gray-600">Welcome, {user?.email}</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">LinkNest</h1>
+            <p className="text-sm/6 opacity-90">Signed in: {user?.email}</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {user?.email === 'markobtc@gmail.com' && (
               <button
                 onClick={() => router.push('/admin')}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition"
               >
                 Admin
               </button>
             )}
             <button
               onClick={signOut}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition"
             >
-              Sign Out
+              Sign out
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Add New Link Form */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Save a New Link</h2>
+        <div className="bg-white/80 backdrop-blur rounded-xl shadow-sm border border-slate-200 p-6 mb-10">
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Add new link</h2>
           <form onSubmit={saveLink} className="space-y-4">
             <div>
-              <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="url" className="block text-sm font-medium text-slate-700 mb-1">
                 URL
               </label>
               <input
@@ -224,11 +224,11 @@ export default function Dashboard() {
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://example.com"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
             <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="tags" className="block text-sm font-medium text-slate-700 mb-1">
                 Tags (optional)
               </label>
               <input
@@ -237,104 +237,93 @@ export default function Dashboard() {
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="work, javascript, tutorial"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
-              <p className="text-xs text-gray-500 mt-1">Separate tags with commas or spaces</p>
+              <p className="text-xs text-slate-500 mt-1">Separate with commas or spaces</p>
             </div>
             <button
               type="submit"
               disabled={saving}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving ? 'Saving...' : 'Save Link'}
+              {saving ? 'Saving…' : 'Save link'}
             </button>
           </form>
         </div>
 
         {/* AI grupirani linki po group_title */}
         {Object.keys(grouped).length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-4">AI skupine</h2>
-            {Object.entries(grouped).map(([groupTitle, groupLinks], idx) => (
-              <div
-                key={groupTitle}
-                className="mb-8 p-4 rounded-xl border-4"
-                style={{ borderColor: groupColors[idx % groupColors.length] }}
-              >
-                <h3 className="text-lg font-bold mb-4">{groupTitle}</h3>
-                <ul>
-                  {groupLinks.map(link => (
-                    <li key={link.id} className="mb-2">
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline font-medium">{link.url}</a>
-                      {link.tags && (
-                        <span className="ml-2 text-xs text-gray-500">({link.tags})</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-slate-900">AI groups</h2>
+              <span className="text-sm text-slate-500">Groups: {Object.keys(grouped).length}</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Object.entries(grouped).map(([groupTitle, groupLinks], idx) => (
+                <div
+                  key={groupTitle}
+                  className="relative rounded-2xl border shadow-sm bg-white/80 backdrop-blur overflow-visible"
+                  style={{ borderColor: groupColors[idx % groupColors.length] }}
+                >
+                  <div
+                    className="h-1.5 w-full"
+                    style={{ background: `linear-gradient(90deg, ${groupColors[idx % groupColors.length]}, ${groupColors[(idx+1) % groupColors.length]})` }}
+                  />
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-slate-900">{groupTitle}</h3>
+                      <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">{(groupLinks as Link[]).length}</span>
+                    </div>
+                    <ul className="space-y-3">
+                      {(groupLinks as Link[]).map(link => {
+                        const domain = (() => { try { return new URL(link.url).hostname } catch { return link.url } })()
+                        return (
+                          <li key={link.id} className="relative group">
+                            <div className="flex items-start gap-3">
+                              <img
+                                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+                                alt="favicon"
+                                className="w-5 h-5 mt-0.5 rounded"
+                              />
+                              <div className="min-w-0">
+                                <a
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sky-700 hover:underline font-medium break-all"
+                                >
+                                  {domain}
+                                </a>
+                                {link.tags && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {formatTags(link.tags).slice(0, 4).map((tag, index) => (
+                                      <span
+                                        key={index}
+                                        className="inline-block bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded-full"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {/* Tooltip opis na hover */}
+                            <div className="absolute z-50 left-8 top-full mt-2 w-80 p-3 rounded-lg border border-slate-200 bg-white shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transform -translate-y-1 transition">
+                              <p className="text-sm text-slate-700">
+                                {link.description ? link.description : (describing ? 'Generating description…' : 'No description available.')}
+                              </p>
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-
-        {/* Saved Links */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Your Saved Links ({links.length})
-          </h2>
-          
-          {links.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No links saved yet. Add your first link above!
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {links.map((link) => {
-                const domain = (() => { try { return new URL(link.url).hostname } catch { return link.url } })()
-                return (
-                  <div key={link.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition">
-                    <div className="flex items-start gap-3">
-                      <img
-                        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
-                        alt="favicon"
-                        className="w-6 h-6 mt-1 rounded"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-700 hover:underline font-semibold break-all"
-                        >
-                          {domain}
-                        </a>
-                        {link.description && (
-                          <p className="text-sm text-gray-700 mt-1 line-clamp-3">{link.description}</p>
-                        )}
-                        {(!link.description && describing) && (
-                          <p className="text-sm text-gray-400 mt-1">Generiram opis…</p>
-                        )}
-                        {link.tags && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {formatTags(link.tags).map((tag, index) => (
-                              <span
-                                key={index}
-                                className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-400 mt-2">{formatDate(link.created_at)}</p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
       </main>
     </div>
   )

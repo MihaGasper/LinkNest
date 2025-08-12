@@ -40,7 +40,8 @@ export default function Admin() {
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+    
       if (error || !profile || profile.role !== 'admin') {
         router.push('/')
         return

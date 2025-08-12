@@ -7,8 +7,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing url' }, { status: 400 })
     }
 
-    const system = 'Si pomočnik, ki v slovenščini napiše zelo kratek, jedrnat opis (do 25 besed) dane spletne strani. Vrni samo opis, brez dodatnega formata.'
-    const user = `Ustvari kratek opis za ta URL: ${url}`
+    const system = 'You are an assistant that writes a very short, concise description (max 25 words) of a given website in English. Return only the description, no extra formatting.'
+    const user = `Write a short English description for this URL: ${url}`
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

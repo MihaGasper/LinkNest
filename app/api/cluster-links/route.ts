@@ -4,13 +4,13 @@ export async function POST(req: NextRequest) {
   const { links } = await req.json();
 
   const prompt = `
-Za vsak spodnji link (z opisom in tagi) določi, v katero tematsko skupino spada. Vrni JSON array, kjer ima vsak link svoj "group_title" (naslov skupine), npr.:
+For each link below (with optional description and tags), assign a concise thematic group title in English. Return a JSON array with entries in the form:
 [
-  { "url": "...", "group_title": "Programiranje" },
-  { "url": "...", "group_title": "Zabava" }
+  { "url": "...", "group_title": "Programming" },
+  { "url": "...", "group_title": "Entertainment" }
 ]
-Linki:
-${links.map((l: any, i: number) => `${i + 1}. ${l.url} (${l.tags}) - ${l.description || ''}`).join('\n')}
+Links:
+${links.map((l: any, i: number) => `${i + 1}. ${l.url} (${l.tags || ''}) - ${l.description || ''}`).join('\n')}
 `;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -21,8 +21,12 @@ ${links.map((l: any, i: number) => `${i + 1}. ${l.url} (${l.tags}) - ${l.descrip
     },
     body: JSON.stringify({
       model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant. Respond strictly in English. Return only a valid JSON array as specified.' },
+        { role: 'user', content: prompt }
+      ],
       max_tokens: 512,
+      temperature: 0.2,
     }),
   });
 
