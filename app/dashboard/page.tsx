@@ -9,7 +9,8 @@ interface Link {
   url: string
   tags: string
   created_at: string
-  group_title?: string // Dodano za AI grupiranje
+  group_title?: string
+  description?: string
 }
 
 const groupColors = ['#6366f1', '#f59e42', '#10b981', '#f43f5e', '#eab308', '#3b82f6'];
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [links, setLinks] = useState<Link[]>([])
   const [url, setUrl] = useState('')
   const [tags, setTags] = useState('')
+  const [describing, setDescribing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [grouping, setGrouping] = useState(false)
@@ -101,6 +103,35 @@ export default function Dashboard() {
     return tagsString.split(/[,\s]+/).filter(tag => tag.length > 0)
   }
 
+  // AI opis in shranjevanje v bazo
+  const describeLinksAndSave = async (linksToDescribe: Link[]) => {
+    setDescribing(true)
+    try {
+      const withoutDesc = linksToDescribe.filter(l => !l.description)
+      await Promise.allSettled(
+        withoutDesc.map(async (l) => {
+          const res = await fetch('/api/describe-link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: l.url }),
+          })
+          const data = await res.json()
+          if (data?.description) {
+            await supabase
+              .from('links')
+              .update({ description: data.description })
+              .eq('id', l.id)
+          }
+        })
+      )
+      await fetchLinks(user.id)
+    } catch (e) {
+      // ignore
+    } finally {
+      setDescribing(false)
+    }
+  }
+
   // AI grupiranje in shranjevanje group_title v bazo
   const groupLinksAndSave = async (links: Link[]) => {
     setGrouping(true);
@@ -123,10 +154,14 @@ export default function Dashboard() {
     setGrouping(false);
   };
 
-  // Po nalaganju linkov pokliči AI grupiranje, če še ni group_title
+  // Po nalaganju linkov pokliči AI (opis + grupiranje)
   useEffect(() => {
-    if (links.length > 0 && links.some(l => !l.group_title) && !grouping) {
-      groupLinksAndSave(links);
+    if (links.length === 0) return
+    if (!describing && links.some(l => !l.description)) {
+      describeLinksAndSave(links)
+    }
+    if (!grouping && links.some(l => !l.group_title)) {
+      groupLinksAndSave(links)
     }
   }, [links]);
 
@@ -253,38 +288,50 @@ export default function Dashboard() {
               No links saved yet. Add your first link above!
             </p>
           ) : (
-            <div className="space-y-4">
-              {links.map((link) => (
-                <div key={link.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex flex-col gap-2">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium break-all"
-                    >
-                      {link.url}
-                    </a>
-                    
-                    {link.tags && (
-                      <div className="flex flex-wrap gap-1">
-                        {formatTags(link.tags).map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {links.map((link) => {
+                const domain = (() => { try { return new URL(link.url).hostname } catch { return link.url } })()
+                return (
+                  <div key={link.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+                        alt="favicon"
+                        className="w-6 h-6 mt-1 rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-700 hover:underline font-semibold break-all"
+                        >
+                          {domain}
+                        </a>
+                        {link.description && (
+                          <p className="text-sm text-gray-700 mt-1 line-clamp-3">{link.description}</p>
+                        )}
+                        {(!link.description && describing) && (
+                          <p className="text-sm text-gray-400 mt-1">Generiram opis…</p>
+                        )}
+                        {link.tags && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {formatTags(link.tags).map((tag, index) => (
+                              <span
+                                key={index}
+                                className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-400 mt-2">{formatDate(link.created_at)}</p>
                       </div>
-                    )}
-                    
-                    <p className="text-xs text-gray-500">
-                      Saved on {formatDate(link.created_at)}
-                    </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
