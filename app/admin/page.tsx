@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Grid3X3, List as ListIcon, Loader2, FolderOpen, X } from 'lucide-react'
 import { supabase } from '../../utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -117,25 +118,25 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-white text-black">
+      <header className="bg-black text-white">
+        <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">LinkNest Admin</h1>
-            <p className="text-sm text-gray-600">Administrator Dashboard</p>
+            <h1 className="text-2xl font-bold">LinkNest Admin</h1>
+            <p className="text-sm/6 opacity-90">Administrator Dashboard</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <button
               onClick={goToDashboard}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded-lg transition border border-white/30 hover:bg-white hover:text-black inline-flex items-center gap-2"
             >
-              Dashboard
+              <FolderOpen className="w-4 h-4"/> Dashboard
             </button>
             <button
               onClick={signOut}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 rounded-lg transition border border-white/30 hover:bg-white hover:text-black inline-flex items-center gap-2"
             >
-              Sign Out
+              <X className="w-4 h-4"/> Sign out
             </button>
           </div>
         </div>
@@ -144,25 +145,25 @@ export default function Admin() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Users</h3>
-            <p className="text-3xl font-bold text-blue-600">{stats.totalUsers}</p>
+          <div className="rounded-xl shadow-sm border border-black/20 p-6">
+            <h3 className="text-lg font-semibold mb-2">Total Users</h3>
+            <p className="text-3xl font-bold">{stats.totalUsers}</p>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Links</h3>
-            <p className="text-3xl font-bold text-green-600">{stats.totalLinks}</p>
+          <div className="rounded-xl shadow-sm border border-black/20 p-6">
+            <h3 className="text-lg font-semibold mb-2">Total Links</h3>
+            <p className="text-3xl font-bold">{stats.totalLinks}</p>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Avg Links/User</h3>
-            <p className="text-3xl font-bold text-purple-600">{stats.averageLinksPerUser}</p>
+          <div className="rounded-xl shadow-sm border border-black/20 p-6">
+            <h3 className="text-lg font-semibold mb-2">Avg Links/User</h3>
+            <p className="text-3xl font-bold">{stats.averageLinksPerUser}</p>
           </div>
         </div>
 
         {/* Users List */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="rounded-xl shadow-sm border border-black/20 p-6">
+          <h2 className="text-xl font-semibold mb-4">
             All Users ({users.length})
           </h2>
           
@@ -175,26 +176,24 @@ export default function Admin() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Registration Date</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">User ID</th>
+                    <th className="text-left py-3 px-4 font-semibold">Email</th>
+                    <th className="text-left py-3 px-4 font-semibold">Registration Date</th>
+                    <th className="text-left py-3 px-4 font-semibold">User ID</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((userData) => (
                     <tr key={userData.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
-                        <span className="font-medium text-gray-900">{userData.email}</span>
+                        <span className="font-medium">{userData.email}</span>
                         {userData.role === 'admin' && (
-                          <span className="ml-2 inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-                            Admin
-                          </span>
+                          <span className="ml-2 inline-block border border-black/20 text-xs px-2 py-1 rounded-full">Admin</span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-gray-600">
+                      <td className="py-3 px-4 text-black/70">
                         {formatDate(userData.created_at)}
                       </td>
-                      <td className="py-3 px-4 text-gray-500 font-mono text-sm">
+                      <td className="py-3 px-4 text-black/60 font-mono text-sm">
                         {userData.id}
                       </td>
                     </tr>
