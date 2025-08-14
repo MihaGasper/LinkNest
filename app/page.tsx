@@ -90,15 +90,12 @@ export default function Home() {
               <span className="text-2xl font-bold tracking-tight">LinkNest</span>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => router.push('/dashboard')} className="px-4 py-2 rounded-lg border border-black/20 hover:bg-black/5 transition">
-                Dashboard
-              </button>
               <button
                 onClick={signInWithGoogle}
                 disabled={loading}
                 className="px-4 py-2 rounded-lg border border-black hover:bg-black hover:text-white transition disabled:opacity-50 inline-flex items-center gap-2"
               >
-                {loading ? (<><Loader2 className="w-4 h-4 animate-spin"/> Signing in…</>) : (<><Plus className="w-4 h-4"/> Get Started</>)}
+                {loading ? (<><Loader2 className="w-4 h-4 animate-spin"/> Logging in…</>) : (<>Login</>)}
               </button>
             </div>
           </div>
